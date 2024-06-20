@@ -5,7 +5,9 @@ export const theme = {
     secondaryBlack: "#0F1928",
     secondaryGrey: "#878787",
     primary: "#E2577F",
+    lightGrey: "#DADADA",
     darkGrey: "#333B48",
+
     purple: "#4E3FE4",
     lightWhite: "rgba(255, 255, 255, 0.2)",
   },

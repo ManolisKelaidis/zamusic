@@ -20,8 +20,11 @@ import { Heart, Pause, Play } from "components/ui/Icons";
 import Skeleton from "react-loading-skeleton";
 import { setStorageValue } from "services/localStorage";
 import { theme } from "styles/Theme";
+import { useWindowSize } from "hooks/useWindowSize";
+import { breakPoints } from "styles/BreakPoints";
 
 const TrackRow = ({ track, index, onClick, isPlaying, addToFavorites, isSaved }) => {
+  const { width } = useWindowSize();
   function secondsToMinutes(seconds) {
     if (seconds) return (seconds - (seconds %= 60)) / 60 + (9 < seconds ? ":" : ":0") + seconds;
     return null;
@@ -41,18 +44,33 @@ const TrackRow = ({ track, index, onClick, isPlaying, addToFavorites, isSaved })
         {track ? (
           <TrackInfoImage src={track?.album?.cover} />
         ) : (
-          <Skeleton width={65} height={65} borderRadius={15} />
+          <Skeleton
+            width={width > breakPoints.md ? 65 : 45}
+            height={width > breakPoints.md ? 65 : 45}
+            borderRadius={width > breakPoints.md ? 15 : 10}
+          />
         )}
 
         <TrackInfoWrapper>
-          <TrackTitle>{track?.title || <Skeleton width={250} />}</TrackTitle>
-          <TrackSubTitle>{track?.artist?.name || <Skeleton width={250} />}</TrackSubTitle>
+          <TrackTitle>
+            {track?.title || <Skeleton width={width > breakPoints.md ? 320 : 170} />}
+          </TrackTitle>
+
+          <TrackSubTitle>
+            {track?.artist?.name || <Skeleton width={width > breakPoints.md ? 250 : 120} />}
+          </TrackSubTitle>
         </TrackInfoWrapper>
       </TableDataTrackInfo>
-      <DurationTableData>
-        {secondsToMinutes(track?.duration) || <Skeleton width={40} />}
-      </DurationTableData>
-      <TableData>{track?.album?.title || <Skeleton width={250} />}</TableData>
+
+      {width > breakPoints.md && (
+        <DurationTableData>
+          {secondsToMinutes(track?.duration) || <Skeleton width={40} />}
+        </DurationTableData>
+      )}
+      {width > breakPoints.md && (
+        <TableData>{track?.album?.title || <Skeleton width={250} />}</TableData>
+      )}
+
       <TableData>
         <ActionWrapper>
           {track ? (

@@ -19,9 +19,13 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { GreyTitle } from "pages/Home/styled";
 import PropTypes, { bool } from "prop-types";
+import { useWindowSize } from "hooks/useWindowSize";
+import { breakPoints } from "styles/BreakPoints";
 // import required modules
 
 export default function Artists({ artists, loading }) {
+  const { width } = useWindowSize();
+  const isMobileLayout = width < breakPoints.md;
   return (
     <Wrapper>
       <ArtistsWrapper>
@@ -31,11 +35,15 @@ export default function Artists({ artists, loading }) {
               <Skeleton
                 wrapper={ArtistsSkeletonWrapper}
                 style={{ maxWidth: "100%" }}
-                height={95}
-                width={95}
+                height={isMobileLayout ? 75 : 95}
+                width={isMobileLayout ? 75 : 95}
                 circle={true}
               />
-              <Skeleton wrapper={ArtistsSkeletonWrapper} style={{ maxWidth: "100%" }} height={27} />
+              <Skeleton
+                wrapper={ArtistsSkeletonWrapper}
+                style={{ maxWidth: "100%" }}
+                height={isMobileLayout ? 19 : 27}
+              />
             </ArtistLoaderWrapper>
           ))}
         {

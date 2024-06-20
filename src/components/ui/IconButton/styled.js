@@ -8,6 +8,8 @@ export const StyledButton = styled.button`
   border: none;
   width: ${(props) => props.width || 20}px;
   height: ${(props) => props.width || 20}px;
+  min-width: ${(props) => props.width || 20}px;
+  min-height: ${(props) => props.width || 20}px;
   cursor: pointer;
   transition:
     opacity 0.2s ease-in-out,

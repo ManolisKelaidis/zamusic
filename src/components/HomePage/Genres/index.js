@@ -72,7 +72,7 @@ export default function Genres() {
       </TitleRow>
 
       <GenresWrapper>
-        {!loading &&
+        {loading &&
           [1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
             <Skeleton
               wrapper={GenreSkeletonWrapper}
@@ -83,8 +83,13 @@ export default function Genres() {
               borderRadius={25}
             />
           ))}
-        <Swiper ref={sliderRef} slidesPerView="auto" spaceBetween={30} modules={[Pagination]}>
-          {loading &&
+        <Swiper
+          ref={sliderRef}
+          slidesPerView="auto"
+          spaceBetween={width < breakPoints.md ? 9 : 20}
+          modules={[Pagination]}
+        >
+          {!loading &&
             genres?.map((genre) => (
               <SwiperSlide key={genre.id} style={{ width: "auto" }}>
                 <Link to={`genres/${genre.id}`}>

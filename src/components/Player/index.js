@@ -11,7 +11,7 @@ import {
   ProgressWrapper,
   TrackTime,
   VolumeWrapper,
-} from "./styles";
+} from "./styled";
 
 import { TrackInfoImage } from "components/TracksTable/TrackRow/styled";
 import { Text } from "components/ui/Typography";
@@ -22,71 +22,38 @@ import Slider, { Range } from "rc-slider";
 import { theme } from "styles/Theme";
 import { PlayerContext, PlayerDispatchContext } from "context/playerContext";
 import { actions } from "context/playerReducer";
-const track = {
-  id: 2463743855,
-  title: "Pigeons",
-  title_short: "Pigeons",
-  title_version: "",
-  link: "https://www.deezer.com/track/2463743855",
-  duration: 12,
-  rank: 93554,
-  explicit_lyrics: false,
-  explicit_content_lyrics: 0,
-  explicit_content_cover: 0,
-  preview: "https://cdns-preview-f.dzcdn.net/stream/c-f69be3f4699d23836511df78eed8fb45-1.mp3",
-  md5_image: "f58f3f9592fca4dc221c16eb155caf62",
-  position: 1,
-  artist: {
-    id: 147490,
-    name: "Root",
-    link: "https://www.deezer.com/artist/147490",
-    picture: "https://api.deezer.com/artist/147490/image",
-    picture_small:
-      "https://e-cdns-images.dzcdn.net/images/artist/bc0c129bdc08d1aac4af7f8e2c44dfcc/56x56-000000-80-0-0.jpg",
-    picture_medium:
-      "https://e-cdns-images.dzcdn.net/images/artist/bc0c129bdc08d1aac4af7f8e2c44dfcc/250x250-000000-80-0-0.jpg",
-    picture_big:
-      "https://e-cdns-images.dzcdn.net/images/artist/bc0c129bdc08d1aac4af7f8e2c44dfcc/500x500-000000-80-0-0.jpg",
-    picture_xl:
-      "https://e-cdns-images.dzcdn.net/images/artist/bc0c129bdc08d1aac4af7f8e2c44dfcc/1000x1000-000000-80-0-0.jpg",
-    radio: true,
-    tracklist: "https://api.deezer.com/artist/147490/top?limit=50",
-    type: "artist",
-  },
-  album: {
-    id: 490602765,
-    title: "Pigeons",
-    cover: "https://api.deezer.com/album/490602765/image",
-    cover_small:
-      "https://e-cdns-images.dzcdn.net/images/cover/f58f3f9592fca4dc221c16eb155caf62/56x56-000000-80-0-0.jpg",
-    cover_medium:
-      "https://e-cdns-images.dzcdn.net/images/cover/f58f3f9592fca4dc221c16eb155caf62/250x250-000000-80-0-0.jpg",
-    cover_big:
-      "https://e-cdns-images.dzcdn.net/images/cover/f58f3f9592fca4dc221c16eb155caf62/500x500-000000-80-0-0.jpg",
-    cover_xl:
-      "https://e-cdns-images.dzcdn.net/images/cover/f58f3f9592fca4dc221c16eb155caf62/1000x1000-000000-80-0-0.jpg",
-    md5_image: "f58f3f9592fca4dc221c16eb155caf62",
-    tracklist: "https://api.deezer.com/album/490602765/tracks",
-    type: "album",
-  },
-  type: "track",
-};
+import { useWindowSize } from "hooks/useWindowSize";
+import { breakPoints } from "styles/BreakPoints";
+import { MobileTrackRow } from "./styled";
+import { BackButton } from "./styled";
+import { useLocation } from "react-router-dom";
+import { BigTrackImage } from "./styled";
+import { BigPlayerWrapper } from "./styled";
+
 function Player(props) {
+  const { width } = useWindowSize();
   const dispatch = useContext(PlayerDispatchContext);
   const { track, isPlaying } = useContext(PlayerContext);
-
+  const location = useLocation();
   const [playerState, setPlayerState] = useState({
     isPlaying: isPlaying,
     currentTime: 0,
     duration: 0,
     volume: 0.2,
+    isOpened: false,
   });
   const audioRef = useRef();
-
+  console.log(playerState.isOpened);
   function togglePlay() {
     dispatch({
       type: actions.TOGGLE_PLAY,
     });
+  }
+
+  function toggleOpen() {
+    console.log("test");
+    if (width > breakPoints.lg && !playerState.isOpened) return;
+    setPlayerState((prev) => ({ ...prev, isOpened: !prev.isOpened }));
   }
 
   function onTimeUpdate() {
@@ -134,42 +101,82 @@ function Player(props) {
     }
   }, [track, audioRef, isPlaying]);
 
+  useEffect(() => {
+    if (playerState.isOpened) toggleOpen();
+  }, [location]);
+
+  useEffect(() => {
+    if (playerState.isOpened) {
+      window.scroll(0, 0);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "scroll";
+    }
+  }, [playerState.isOpened]);
+
+  useEffect(() => {
+    if (width < breakPoints.lg && playerState.isOpened) {
+      toggleOpen();
+    }
+  }, [width]);
   if (!track) {
     return null;
   }
   return (
-    <Wrapper>
-      {" "}
-      <ContentWrapper display="flex">
-        <audio
-          hidden
-          ref={audioRef}
-          src={track.preview}
-          controls
-          onTimeUpdate={onTimeUpdate}
-          onLoadedMetadata={onTimeUpdate}
-          onEnded={handleNextSong}
-        />
-        <TrackInfoWrapper>
-          <TrackImage src={track.album.cover}></TrackImage>
-          <TrackInfoTextWrapper>
-            <Text>{track.title}</Text>
-            <ArtistName>{track.title}</ArtistName>
-          </TrackInfoTextWrapper>
-        </TrackInfoWrapper>
-        <ControlsWrapper>
-          <IconButton>
-            <SkipLeft onClick={handlePrevSong} />
-          </IconButton>
-          <IconButton onClick={togglePlay} withBackground width={55} height={55}>
-            {isPlaying ? <Pause /> : <Play />}
-          </IconButton>
-          <IconButton>
-            <SkipRight onClick={handleNextSong} />
-          </IconButton>
-        </ControlsWrapper>
-        <ProgressWrapper>
-          <TrackTime>{formatSecondsToMSS(playerState?.currentTime)}</TrackTime>
+    <Wrapper onClick={playerState.isOpened ? null : toggleOpen} full={playerState.isOpened}>
+      <audio
+        hidden
+        ref={audioRef}
+        src={track.preview}
+        controls
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onTimeUpdate}
+        onEnded={handleNextSong}
+      />{" "}
+      <PlayerLayout
+        isPlaying={isPlaying}
+        togglePlay={togglePlay}
+        track={track}
+        handlePrevSong={handlePrevSong}
+        handleNextSong={handleNextSong}
+        playerState={playerState}
+        onVolumeChange={onVolumeChange}
+        onTimeDrag={onTimeDrag}
+        toggleVolume={toggleVolume}
+        toggleOpen={toggleOpen}
+      />
+    </Wrapper>
+  );
+}
+
+function PlayerLayout({
+  isPlaying,
+  handleNextSong,
+  playerState,
+  onTimeDrag,
+  handlePrevSong,
+  togglePlay,
+  toggleVolume,
+  onVolumeChange,
+  track,
+  toggleOpen,
+}) {
+  if (playerState.isOpened) {
+    return (
+      <ContentWrapper gap="14" display="flex" direction="column">
+        <BackButton onClick={toggleOpen}> Back</BackButton>
+        <BigTrackImage src={track.album.cover_big} />
+
+        <MobileTrackRow>
+          <TrackInfoWrapper>
+            <TrackInfoTextWrapper>
+              <Text>{track.title}</Text>
+              <ArtistName>{track.title}</ArtistName>
+            </TrackInfoTextWrapper>
+          </TrackInfoWrapper>
+        </MobileTrackRow>
+        <ProgressWrapper full={1}>
+          <TrackTime> {formatSecondsToMSS(playerState?.currentTime)}</TrackTime>
           <Slider
             onChange={onTimeDrag}
             step={0.2}
@@ -181,9 +188,22 @@ function Player(props) {
             railStyle={{ height: 8, backgroundColor: theme.colors.darkGrey }}
             handleStyle={{ border: "none", backgroundColor: theme.colors.white, marginTop: -3 }}
           />
-          <TrackTime grey>{formatSecondsToMSS(playerState?.duration)}</TrackTime>
+          <TrackTime last={1} grey>
+            {formatSecondsToMSS(playerState?.duration)}
+          </TrackTime>
         </ProgressWrapper>
-        <VolumeWrapper>
+        <ControlsWrapper full={1}>
+          <IconButton>
+            <SkipLeft onClick={handlePrevSong} />
+          </IconButton>
+          <IconButton onClick={togglePlay} withBackground width={55} height={55}>
+            {isPlaying ? <Pause /> : <Play />}
+          </IconButton>
+          <IconButton>
+            <SkipRight onClick={handleNextSong} />
+          </IconButton>
+        </ControlsWrapper>
+        <VolumeWrapper full={1}>
           <IconButton onClick={toggleVolume} height={24} width={24}>
             <Volume />
           </IconButton>
@@ -201,10 +221,144 @@ function Player(props) {
           />
         </VolumeWrapper>
       </ContentWrapper>
-    </Wrapper>
+    );
+  }
+  const { width } = useWindowSize();
+  if (width < breakPoints.lg) {
+    return (
+      <ContentWrapper gap="14" display="flex" items="space-between" direction="column">
+        <MobileTrackRow>
+          <TrackInfoWrapper>
+            <TrackImage src={track.album.cover}></TrackImage>
+            <TrackInfoTextWrapper>
+              <Text>{track.title}</Text>
+              <ArtistName>{track.title}</ArtistName>
+            </TrackInfoTextWrapper>
+          </TrackInfoWrapper>
+          <ControlsWrapper>
+            <IconButton
+              onClick={(event) => {
+                event.stopPropagation();
+                togglePlay();
+              }}
+              withBackground
+              width={55}
+              height={55}
+            >
+              {isPlaying ? <Pause /> : <Play />}
+            </IconButton>
+          </ControlsWrapper>
+        </MobileTrackRow>
+        <ProgressWrapper
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
+        >
+          <TrackTime> {formatSecondsToMSS(playerState?.currentTime)}</TrackTime>
+          <Slider
+            onChange={onTimeDrag}
+            step={0.2}
+            min={0}
+            max={playerState.duration}
+            value={playerState.currentTime}
+            style={{ padding: 3 }}
+            trackStyle={{ height: 8, backgroundColor: theme.colors.white }}
+            railStyle={{ height: 8, backgroundColor: theme.colors.darkGrey }}
+            handleStyle={{ border: "none", backgroundColor: theme.colors.white, marginTop: -3 }}
+          />
+          <TrackTime last={1} grey>
+            {formatSecondsToMSS(playerState?.duration)}
+          </TrackTime>
+        </ProgressWrapper>
+      </ContentWrapper>
+    );
+  }
+  return (
+    <ContentWrapper items="center" display="flex">
+      <TrackInfoWrapper>
+        <TrackImage src={track.album.cover}></TrackImage>
+        <TrackInfoTextWrapper>
+          <Text>{track.title}</Text>
+          <ArtistName>{track.title}</ArtistName>
+        </TrackInfoTextWrapper>
+      </TrackInfoWrapper>
+      <ControlsWrapper>
+        <IconButton>
+          <SkipLeft onClick={handlePrevSong} />
+        </IconButton>
+        <IconButton onClick={togglePlay} withBackground width={55} height={55}>
+          {isPlaying ? <Pause /> : <Play />}
+        </IconButton>
+        <IconButton>
+          <SkipRight onClick={handleNextSong} />
+        </IconButton>
+      </ControlsWrapper>
+      <ProgressWrapper>
+        <TrackTime>{formatSecondsToMSS(playerState?.currentTime)}</TrackTime>
+        <Slider
+          onChange={onTimeDrag}
+          step={0.2}
+          min={0}
+          max={playerState.duration}
+          value={playerState.currentTime}
+          style={{ padding: 3 }}
+          trackStyle={{ height: 8, backgroundColor: theme.colors.white }}
+          railStyle={{ height: 8, backgroundColor: theme.colors.darkGrey }}
+          handleStyle={{ border: "none", backgroundColor: theme.colors.white, marginTop: -3 }}
+        />
+        <TrackTime grey>{formatSecondsToMSS(playerState?.duration)}</TrackTime>
+      </ProgressWrapper>
+      <VolumeWrapper>
+        <IconButton onClick={toggleVolume} height={24} width={24}>
+          <Volume />
+        </IconButton>
+
+        <Slider
+          step={0.2}
+          min={0}
+          max={1}
+          value={playerState.volume}
+          onChange={onVolumeChange}
+          style={{ padding: 3 }}
+          trackStyle={{ height: 8, backgroundColor: theme.colors.white }}
+          railStyle={{ height: 8, backgroundColor: theme.colors.darkGrey }}
+          handleStyle={{ border: "none", backgroundColor: theme.colors.white, marginTop: -3 }}
+        />
+      </VolumeWrapper>
+    </ContentWrapper>
   );
 }
 
-Player.propTypes = {};
+PlayerLayout.propTypes = {
+  track: PropTypes.shape({
+    id: PropTypes.number,
+    title: PropTypes.string,
+    duration: PropTypes.number,
+    preview: PropTypes.string,
+    artist: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    album: PropTypes.shape({
+      title: PropTypes.string,
+      cover: PropTypes.string,
+      cover_big: PropTypes.string,
+    }),
+  }),
+  isPlaying: PropTypes.bool,
+  handleNextSong: PropTypes.func,
+  handlePrevSong: PropTypes.func,
+  playerState: PropTypes.shape({
+    currentTime: PropTypes.number,
+    duration: PropTypes.number,
+    volume: PropTypes.number,
+    isOpened: PropTypes.bool,
+  }),
+  onTimeDrag: PropTypes.func,
+  togglePlay: PropTypes.func,
+  onVolumeChange: PropTypes.func,
+  toggleVolume: PropTypes.func,
+  toggleOpen: PropTypes.func,
+  open: PropTypes.bool,
+};
 
 export default Player;

@@ -6,11 +6,14 @@ import Skeleton from "react-loading-skeleton";
 import TrackRow from "./TrackRow";
 import { PlayerContext, PlayerDispatchContext } from "context/playerContext";
 import { actions } from "context/playerReducer";
+import { useWindowSize } from "hooks/useWindowSize";
+import { breakPoints } from "styles/BreakPoints";
 
 function TracksTable({ tracks, loading }) {
   const dispatch = useContext(PlayerDispatchContext);
   const { track, isPlaying, savedTracksIds } = useContext(PlayerContext);
-
+  const { width } = useWindowSize();
+  console.log(tracks);
   function addToFavorites(trackId) {
     dispatch({
       type: actions.TOGGLE_SAVE_TRACK,
@@ -43,12 +46,16 @@ function TracksTable({ tracks, loading }) {
           <TableHeading>
             {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Song name</Subtext>}
           </TableHeading>
-          <TableHeading>
-            {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Time</Subtext>}
-          </TableHeading>
-          <TableHeading>
-            {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Album name</Subtext>}
-          </TableHeading>
+          {width > breakPoints.md && (
+            <TableHeading>
+              {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Time</Subtext>}
+            </TableHeading>
+          )}
+          {width > breakPoints.md && (
+            <TableHeading>
+              {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Album name</Subtext>}
+            </TableHeading>
+          )}
           <TableHeading>
             {loading ? <Skeleton widht={20} height={20} /> : <Subtext>Action</Subtext>}
           </TableHeading>
