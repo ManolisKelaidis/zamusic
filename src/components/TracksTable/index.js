@@ -13,7 +13,7 @@ function TracksTable({ tracks, loading }) {
   const dispatch = useContext(PlayerDispatchContext);
   const { track, isPlaying, savedTracksIds } = useContext(PlayerContext);
   const { width } = useWindowSize();
-  console.log(tracks);
+
   function addToFavorites(trackId) {
     dispatch({
       type: actions.TOGGLE_SAVE_TRACK,

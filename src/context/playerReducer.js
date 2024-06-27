@@ -26,7 +26,6 @@ export function playerReducer(state, action) {
       };
 
     case actions.TOGGLE_SAVE_TRACK:
-      console.log("eimai edw");
       const indexOfTrack = state.savedTracksIds.indexOf(action.trackId);
       let newSavedTrackId;
       if (indexOfTrack >= 0) {

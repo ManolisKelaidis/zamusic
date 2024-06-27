@@ -21,9 +21,11 @@ import { GreyTitle } from "pages/Home/styled";
 import PropTypes, { bool } from "prop-types";
 import { useWindowSize } from "hooks/useWindowSize";
 import { breakPoints } from "styles/BreakPoints";
+import { Link } from "react-router-dom";
 // import required modules
 
 export default function Artists({ artists, loading }) {
+  console.log(artists);
   const { width } = useWindowSize();
   const isMobileLayout = width < breakPoints.md;
   return (
@@ -34,7 +36,7 @@ export default function Artists({ artists, loading }) {
             <ArtistLoaderWrapper key={num}>
               <Skeleton
                 wrapper={ArtistsSkeletonWrapper}
-                style={{ maxWidth: "100%" }}
+                style={({ maxWidth: "100%" }, { margin: "0 auto" })}
                 height={isMobileLayout ? 75 : 95}
                 width={isMobileLayout ? 75 : 95}
                 circle={true}
@@ -47,12 +49,19 @@ export default function Artists({ artists, loading }) {
             </ArtistLoaderWrapper>
           ))}
         {
-          <Swiper slidesPerView="auto" spaceBetween={30} modules={[Pagination]}>
+          <Swiper
+            style={{ marginLeft: 0 }}
+            slidesPerView="auto"
+            spaceBetween={30}
+            modules={[Pagination]}
+          >
             {" "}
             {!loading &&
               artists?.map((artist) => (
                 <SwiperSlide key={artist.id} style={{ width: "auto" }}>
-                  <ArtistCard id={artist.id} name={artist.name} image={artist.picture_medium} />{" "}
+                  <Link to={`artists/${artist.id}`}>
+                    <ArtistCard id={artist.id} name={artist.name} image={artist.picture_medium} />{" "}
+                  </Link>
                 </SwiperSlide>
               ))}{" "}
           </Swiper>

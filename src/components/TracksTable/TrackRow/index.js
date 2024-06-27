@@ -24,6 +24,7 @@ import { useWindowSize } from "hooks/useWindowSize";
 import { breakPoints } from "styles/BreakPoints";
 
 const TrackRow = ({ track, index, onClick, isPlaying, addToFavorites, isSaved }) => {
+  console.log(track);
   const { width } = useWindowSize();
   function secondsToMinutes(seconds) {
     if (seconds) return (seconds - (seconds %= 60)) / 60 + (9 < seconds ? ":" : ":0") + seconds;

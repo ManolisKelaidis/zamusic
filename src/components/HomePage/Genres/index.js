@@ -24,7 +24,7 @@ import { breakPoints } from "styles/BreakPoints";
 
 export default function Genres() {
   const { width } = useWindowSize();
-  console.log(width);
+
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(false);
 
